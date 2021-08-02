@@ -6,7 +6,7 @@ Fanfare can run concurrently on multiple servers, so if you and your friends han
 
 ## How to Use
 
-**Before you start**, make sure you have created an Application in Discord's [Developer Portal](https://discord.com/developers/applications).
+**Before you start**, make sure you have created an Application in Discord's [Developer Portal](https://discord.com/developers/applications). Fanfare uses the `DISCORD_CLIENT_SECRET` environment variable to store the client secret, so store it there.
 
 1. Get the **Discord User ID** of the users you want to make fanfares for. Make sure _Developer Mode_ is enabled in your Discord Advanced settings, then right click a user and select _Copy ID_.
 
@@ -14,7 +14,7 @@ Fanfare can run concurrently on multiple servers, so if you and your friends han
 
 ![](https://i.imgur.com/gRWTmYd.gif)
 
-2. Configure users and sounds in the `sounds.json` file, using the **Discord User ID** as the key, and the sound filename as the value (place sounds in the [`sound`](/sound) folder):
+2. Configure users and sounds in the [`sounds.json`](/sounds.json) file, using the **Discord User ID** as the key, and the sound filename as the value (place sounds in the [`sound`](/sound) folder):
 
 ```json
 {

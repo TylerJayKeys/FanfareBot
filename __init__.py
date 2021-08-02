@@ -5,6 +5,16 @@ from json import load
 
 intents = discord.Intents.default()
 
+try:
+    DISCORD_CLIENT_SECRET = environ['DISCORD_CLIENT_SECRET']
+except KeyError:
+    from getpass import getpass
+
+    print('\033[91m' + '\033[1m' + 'DISCORD_CLIENT_SECRET environment variable not found!' + '\033[0m')
+    print('Go to https://discord.com/developers/applications/ and get your application\'s client secret from the Bot settings page.')
+    print('Enter it below, and make sure you set DISCORD_CLIENT_SECRET before you next run the bot.\n')
+    DISCORD_CLIENT_SECRET = getpass(prompt='Client Secret (will not show in terminal): ')
+
 # soundslist loaded from external json file for ease of use :)
 with open('sounds.json') as file:
     ENTRANCE_SOUNDS = load(file)
@@ -53,4 +63,4 @@ class Client(discord.Client):
         return self.contexts[guild]
 
 client = Client(intents=intents)
-client.run(environ['DISCORD_CLIENT_SECRET'])
+client.run(DISCORD_CLIENT_SECRET)

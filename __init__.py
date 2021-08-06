@@ -40,7 +40,7 @@ class Client(discord.Client):
     async def on_voice_state_update(self, member, before, after):
         if after.channel:
             if str(member.id) in ENTRANCE_SOUNDS and (not before.channel or before.channel.id != after.channel.id):
-                queue = self.get_context_queue(member.guild)
+                queue = self.get_context_queue(member.guild.id)
                 await queue.put((after.channel, member.id))
 
     async def queue_worker(self, queue):
@@ -54,13 +54,13 @@ class Client(discord.Client):
 
     # returns the appropriate asyncio queue for the given guild
     # this hopefully means we can have several concurrent queues that will handle multiple servers
-    def get_context_queue(self, guild):
-        if not guild in self.contexts:
-            self.contexts[guild] = asyncio.Queue()
-            asyncio.create_task(self.queue_worker(self.contexts[guild]))
-            print(f'New context created for guild {guild}')
+    def get_context_queue(self, guild_id):
+        if not guild_id in self.contexts:
+            self.contexts[guild_id] = asyncio.Queue()
+            asyncio.create_task(self.queue_worker(self.contexts[guild_id]))
+            print(f'New context created for guild {guild_id}')
 
-        return self.contexts[guild]
+        return self.contexts[guild_id]
 
 client = Client(intents=intents)
 client.run(DISCORD_CLIENT_SECRET)

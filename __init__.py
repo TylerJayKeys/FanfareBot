@@ -28,39 +28,39 @@ class Client(discord.Client):
     async def on_ready(self):
         print(f'Logged in as {self.user}')
 
-    async def play_vc_audio(self, channel, audio):
+    async def play_vc_audio(self, channel, member):
         vc = await channel.connect()
-        vc.play(discord.FFmpegPCMAudio(source=f'sound/{audio}'))
+        vc.play(discord.FFmpegPCMAudio(source=f'sound/{ENTRANCE_SOUNDS[str(member.id)]}'))
 
-        while vc.is_playing():
-            await asyncio.sleep(1)
+        while vc.is_playing() and member in channel.members:
+            await asyncio.sleep(0.5)
 
         await vc.disconnect()
 
     async def on_voice_state_update(self, member, before, after):
         if after.channel:
             if str(member.id) in ENTRANCE_SOUNDS and (not before.channel or before.channel.id != after.channel.id):
-                queue = self.get_context_queue(member.guild.id)
-                await queue.put((after.channel, member.id))
+                queue = self.get_context_queue(member.guild)
+                await queue.put((after.channel, member))
 
     async def queue_worker(self, queue):
         while True:
-            args = await queue.get() # a tuple of channel, user id
+            args = await queue.get() # a tuple of channel, member
 
-            # run the function on the given id
-            await self.play_vc_audio(args[0], ENTRANCE_SOUNDS[str(args[1])])
+            # run the function on the given member
+            await self.play_vc_audio(args[0], args[1])
             
             queue.task_done()
 
     # returns the appropriate asyncio queue for the given guild
     # this hopefully means we can have several concurrent queues that will handle multiple servers
-    def get_context_queue(self, guild_id):
-        if not guild_id in self.contexts:
-            self.contexts[guild_id] = asyncio.Queue()
-            asyncio.create_task(self.queue_worker(self.contexts[guild_id]))
-            print(f'New context created for guild {guild_id}')
+    def get_context_queue(self, guild):        
+        if not guild.id in self.contexts:
+            self.contexts[guild.id] = asyncio.Queue()
+            asyncio.create_task(self.queue_worker(self.contexts[guild.id]))
+            print(f'New context created for guild {guild.id}')
 
-        return self.contexts[guild_id]
+        return self.contexts[guild.id]
 
 client = Client(intents=intents)
 client.run(DISCORD_CLIENT_SECRET)
